@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: cohesive-replicaset
+  labels:
+    app: cohesive
+    type: front-end
+
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: ngix-pod
+      labels:
+        app: cohesive
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+  selector:     # Use to search for other pods that match the lable and are off the same template.
+    matchLabels:  # create any key/value pair to match othe PODs that should be control by this replicaset.
+      app: cohesive
