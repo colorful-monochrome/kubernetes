@@ -7,7 +7,7 @@ metadata:
     app: demo-voting-app
 spec:
   containers:
-  - name: result-app
-    image: dockersamples/examplevotingapp_result
-    ports:
-      - containerPort: 80
+    - name: result-app
+      image: dockersamples/examplevotingapp_result
+      ports:
+        - containerPort: 80
