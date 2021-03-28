@@ -1,0 +1,48 @@
+---
+- hosts: all
+  become: yes
+
+  vars_files:
+    - vars/main_vars.yml
+
+# Install containerd,kubectl,kubelet,kubeadm and kubernetes-cni networking
+  roles:
+    - geerlingguy.containerd
+    - geerlingguy.kubernetes
+
+  tasks:
+    - name: Ensure br_netfilter module is loaded
+      community.general.modprobe:
+        name: '{{ item }}'
+        state: present
+      with_items:
+        - br_netfilter
+        - overlay
+
+    - name: Configure networking for bridged traffic
+      sysctl:
+        name: '{{ item.key }}'
+        value: '{{ item.value }}'
+        sysctl_set: yes
+        state: present
+        reload: yes
+        ignoreerrors: yes
+      with_dict: '{{ sysctl_config }}'
+
+    - name: Configure containerd to use systemd cgroup driver
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^systemd_cgroup ='
+        line: systemd_cgroup = true
+      notify: restart containerd
+
+# Disable SWAP
+    - name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
+      shell: |
+        swapoff -a
+
+    - name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+        replace: '# \1'
