@@ -3,7 +3,7 @@ terraform {
     region         = "us-east-1"
     bucket         = "terraform-remotestate-60458"
     encrypt        = true # Optional, S3 Bucket Server Side Encryption
-    key            = "tf-remote-state/terraform.tfstate"
+    key            = "tf-remote-state/terraform.edgdejes"
     dynamodb_table = "tf-remote-state-lock"
 
   }
